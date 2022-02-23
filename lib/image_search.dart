@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-//todo 分页，懒加载，点击放大
+//todo 点击放大
 class ImageSearch extends StatefulWidget {
   const ImageSearch({Key? key}) : super(key: key);
 
@@ -13,16 +13,32 @@ class ImageSearch extends StatefulWidget {
 
 class _ImageSearchState extends State<ImageSearch> {
   final String apiAddr = "http://xxx";
+  final int limit = 24;
+  int start = 0;
+  int more = 0;
+  String searchText = "";
   List<String> imgData = <String>[];
+
   @override
   initState() {
     super.initState();
   }
 
   getImgList(String searchText) async {
-    String url = apiAddr + "/kw=" + searchText;
-    var res = await http.get(url);
+    String url1 = apiAddr + "/kw=" + searchText;
+    var httpsUri = Uri(
+      scheme: 'https',
+      host: 'host',
+      path: '/path?kw' +
+          searchText +
+          "&start=" +
+          start.toString() +
+          "&limit=" +
+          limit.toString(),
+    );
+    var res = await http.get(httpsUri);
     var resJson = jsonDecode(res.body);
+    more = int.parse(resJson['more'].toString()); //是否还有下一页
     setState(() {
       imgData.addAll(resJson['data']);
     });
@@ -30,13 +46,19 @@ class _ImageSearchState extends State<ImageSearch> {
 
   Widget imgList() {
     return GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-        ),
-        itemBuilder: (context, index) {
-          String url = imgData[index];
-          return Image.network(url);
-        });
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+      ),
+      itemBuilder: (context, index) {
+        String url = imgData[index];
+        if (index == imgData.length - 1 && more == 1) {
+          start += limit;
+          getImgList(searchText);
+        }
+        return Image.network(url);
+      },
+      itemCount: imgData.length,
+    );
   }
 
   @override
@@ -49,7 +71,8 @@ class _ImageSearchState extends State<ImageSearch> {
             child: Row(
               children: [
                 Expanded(child: TextField(onSubmitted: (query) {
-                  getImgList(query);
+                  searchText = query;
+                  getImgList(searchText);
                 }))
               ],
             ),
