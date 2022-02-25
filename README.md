@@ -1,16 +1,12 @@
-# flutter_image_search
+# flutter简单图片搜索APP实现
+## 已实现功能
+* 图片搜索（调用已有接口）
+* 无限滚动，懒加载
 
-A new Flutter project.
+## TODO
+* 点击放大
+* 长按保存
 
-## Getting Started
+## 演示图
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img src="https://s4.ax1x.com/2022/02/25/bAE16U.jpg" width=50% border="0" align=left />
