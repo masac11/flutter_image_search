@@ -1,9 +1,10 @@
 import 'dart:convert';
-
+import 'package:flutter_image_search/utils.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-//todo 点击放大
+// 主界面
 class ImageSearch extends StatefulWidget {
   const ImageSearch({Key? key}) : super(key: key);
 
@@ -25,7 +26,6 @@ class _ImageSearchState extends State<ImageSearch> {
   }
 
   getImgList(String searchText) async {
-    String url1 = apiAddr + "/kw=" + searchText;
     var httpsUri = Uri(
       scheme: 'https',
       host: 'host',
@@ -55,7 +55,18 @@ class _ImageSearchState extends State<ImageSearch> {
           start += limit;
           getImgList(searchText);
         }
-        return Image.network(url);
+        return GestureDetector(
+          child: Image.network(url),
+          onLongPress: () {
+            Utils.download(url);
+          },
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (context) => ImageDetailPage(url: url)),
+            );
+          },
+        );
       },
       itemCount: imgData.length,
     );
@@ -67,21 +78,40 @@ class _ImageSearchState extends State<ImageSearch> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          Container(
-            child: Row(
-              children: [
-                Expanded(child: TextField(onSubmitted: (query) {
-                  searchText = query;
-                  getImgList(searchText);
-                }))
-              ],
-            ),
+          Row(
+            children: [
+              Expanded(child: TextField(onSubmitted: (query) {
+                searchText = query;
+                getImgList(searchText);
+              }))
+            ],
           ),
           Container(
             child: imgList(),
           )
         ],
       ),
+    );
+  }
+}
+
+// 点击图片放大界面，支持长按下载
+class ImageDetailPage extends StatelessWidget {
+  final String url;
+  const ImageDetailPage({Key? key, required this.url}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: PhotoView(
+        imageProvider: NetworkImage(url),
+      ),
+      onLongPress: () {
+        Utils.download(url);
+      },
+      onTap: () {
+        Navigator.of(context).pop();
+      },
     );
   }
 }
